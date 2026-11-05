@@ -28,16 +28,16 @@ decision.
   match. Covariate shift is compatible with predictive exchangeability as long as
   the conditional relationship is preserved, but it can change measures that depend
   on the case mix, such as discrimination.
-- **Discrimination and calibration must be reported separately.** Both are computed
-  on the model. A calibration failure often has a data-subspace cause, a difference in
-  baseline hazard or prevalence.
+- **Discrimination and calibration must be reported separately.** Discrimination
+  depends on the model and on the case mix. A calibration failure often reflects a
+  different baseline risk at the same predictor values. That difference lies in
+  P(Y|X) and counts against predictive exchangeability.
 
 **Discrimination can transfer while calibration fails:**
 A model can keep its discrimination (c-statistic) in a new context while its
-calibration fails, because the baseline risk differs between the contexts. The
-baseline risk is a data-subspace quantity. Recalibration re-estimates the baseline
-hazard S_0(t) while holding the coefficients beta fixed (model subspace). Model
-similarity can therefore coexist with data dissimilarity.
+calibration fails, because the baseline risk differs at the same predictor values.
+Recalibration re-estimates the baseline hazard S_0(t) and holds the coefficients
+beta fixed. It updates the model but keeps the relative effects of the predictors.
 
 ### Dissimilarity Functions
 
@@ -49,16 +49,21 @@ similarity can therefore coexist with data dissimilarity.
 
 2. **Discrimination differences.**
    Compare c-statistic, AUC, or concordance index of the same model in both contexts.
+   - Discrimination depends on the case mix. Compare the observed c-statistic with
+     the case-mix-corrected c-statistic, the value expected in the new case mix if
+     the coefficients hold.
    - c-statistic near 0.5 = no discrimination.
    - Report difference with CI: |AUC_A - AUC_B| [95% CI].
 
 3. **Calibration differences.**
    Compare calibration slope, calibration-in-the-large, or calibration curves.
    - Slope = 1, intercept = 0 indicates perfect calibration.
-   - Computed on the model, but a calibration failure often has a data-subspace
-     cause, a difference in baseline hazard or prevalence.
+   - A calibration failure often reflects a different baseline risk at the same
+     predictor values. That difference lies in P(Y|X) and counts against
+     predictive exchangeability.
    - **Always report alongside discrimination.** Good discrimination with poor
-     calibration is the typical pattern when the baseline risk differs.
+     calibration is the typical pattern when the baseline risk differs at the same
+     predictor values.
 
 4. **Coefficient-swap prediction error.**
    Swap estimated coefficients between contexts and measure prediction degradation.
@@ -67,13 +72,14 @@ similarity can therefore coexist with data dissimilarity.
 
 ### Small-n Caveats
 
-- Cross-validation estimates of non-native performance are **unstable** in small
-  samples. Prefer leave-one-out or repeated k-fold with CIs over single
-  train-test splits.
+- Cross-validation estimates of native performance are **unstable** in small
+  samples. Prefer leave-one-out or repeated k-fold over single train-test splits.
+  Naive CV intervals are too narrow. Take CIs from the nested cross-validation scheme
+  of Bates, Hastie and Tibshirani (2024).
 - c-statistic has **wide CIs at low event rates**. Apparent preservation of
   discrimination may reflect insufficient power to detect degradation.
-- Models fitted on small samples may **overfit** to native data, inflating the
-  apparent non-native penalty.
+- If native performance is estimated on the training data, **overfitting** inflates
+  the apparent non-native penalty.
 - Single train-test splits produce **one random number**, not a performance estimate.
 
 ### Assessment Guidance
@@ -87,7 +93,7 @@ similarity can therefore coexist with data dissimilarity.
 
 **If predictive similarity condition fails:**
 - **Discrimination preserved, calibration fails:** Recalibrate (update intercept /
-  baseline hazard). State assumption: "conditional relationship P(Y|X) transfers."
+  baseline hazard). State assumption: "the relative effects of the predictors transfer."
 - **Discrimination fails:** Model structure may not transfer. Consider:
   - Updating coefficients (partial refit).
   - Transfer learning (fine-tune on target data).
@@ -100,57 +106,57 @@ similarity can therefore coexist with data dissimilarity.
 
 ### Similarity Condition
 
-Following Pearl, causal comparability decomposes into two **independent** conditions:
+Following Pearl, two conditions can be distinguished:
 
 1. **Structural causal similarity.** Two models are structurally causally similar if
-   the same variables are causally connected (same DAG), regardless of effect sizes,
-   functional forms, or parameter values.
+   every endogenous variable has the same parents and the same exogenous causes in
+   both (same causal diagram), regardless of effect sizes, functional forms, or
+   parameter values.
 
-2. **Probabilistic similarity.** Two models are probabilistically similar if the
-   distributions of exogenous (unobserved) variables match: P_1(U) = P_2(U).
-
-These conditions are independent:
-- Models may share causal structure but differ in exogenous distributions.
-- Models may be probabilistically similar yet structurally dissimilar.
-
-**Full causal similarity** = structural causal similarity + probabilistic similarity.
-Even under full causal similarity, models may differ in effect magnitudes or functional
-forms.
+2. **Effect similarity.** Two models are effect-similar for a target effect if they
+   imply the same interventional distribution P(Y | do(X=x)), or the same summary of
+   it such as the average treatment effect. Effect similarity depends on both the
+   structural functions and the exogenous distributions. Structural causal similarity
+   does not imply it.
 
 ### Which Form Does the Decision Require?
 
 | Decision | Required form |
 |----------|---------------|
-| Strict replication | Full causal similarity (structure + probabilistic) |
-| Validate a specific causal claim (X→Y) | Structural causal similarity may suffice |
+| Strict replication | Effect similarity for the target effect |
+| Validate a specific causal claim (X→Y) | Same causal diagram apart from the X→Y edge may suffice |
 | Transport treatment effect | Structural causal similarity + identifiable selection mechanism |
-| Compare effect magnitudes | Full causal similarity or explicit transport formula |
+| Compare effect magnitudes | Effect similarity or explicit transport formula |
 
 Articulating which form the decision requires makes replication claims more precise
 and highlights what would constitute a failure to replicate.
 
 ### Dissimilarity Functions
 
-1. **Parameter distance.**
+1. **Structural Hamming distance (structural causal similarity).**
+   The number of edge insertions, deletions and reversals that turn one causal
+   diagram into the other.
+
+2. **Parameter distance (effect similarity).**
    For linear SEMs: Frobenius norm ||B_1 - B_2||_F of coefficient-matrix difference.
    For nonlinear models: function-space distances or summary statistics of
    interventional distributions.
 
-2. **Interventional divergence.**
+3. **Interventional divergence (effect similarity).**
    Compare P(Y | do(X=x)) across models using distributional distances (total
    variation, Wasserstein). Directly quantifies whether the same intervention
    produces the same outcome distribution.
 
-3. **Effect-estimate differences.**
+4. **Effect-estimate differences (effect similarity).**
    Compare ATEs, CATEs, or mediation quantities. For transportability, compare
    the target-population effect under each model.
    - Report with CIs: |ATE_A - ATE_B| [95% CI].
-   - Wide overlap → consistent with causal similarity.
-   - Narrow non-overlap → evidence of causal dissimilarity.
+   - Wide overlap → consistent with effect similarity.
+   - Narrow non-overlap → evidence against effect similarity.
 
 ### Small-n Caveats
 
-- Causal structure **cannot generally be identified** from small observational samples.
+- Observational data identify a causal diagram **at most up to** the set of diagrams that imply the same conditional independencies. Small samples rarely identify even this set.
   Structural causal similarity claims typically rest on **domain knowledge**, not data-driven
   discovery.
 - Effect estimates have **wide CIs** in small n. Difficult to distinguish genuine
@@ -200,5 +206,7 @@ as in meta-analysis (task 1.2).
 
 ### Small-n Caveats
 
-- With few studies, tau^2 is estimated imprecisely. Report its interval and the
-  prediction interval rather than tau^2 alone.
+- With few studies, tau^2 is estimated imprecisely. Estimate it by restricted maximum
+  likelihood (REML). Report a confidence interval for it (for example Q-profile) and
+  the prediction interval rather than tau^2 alone. A near-zero estimate from few studies does not establish
+  the condition.

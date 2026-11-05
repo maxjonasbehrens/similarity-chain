@@ -28,13 +28,14 @@ on the same measurement scales and with the same measurement-error structure.
 **Key distinctions:**
 - Operational equivalence requires the same measurement-error **structure and
   magnitude**. Unequal reliability is **not** benign wherever estimates are
-  pooled: sources whose measurements attenuate associations to different degrees
-  produce a combined estimate biased against every source's own estimand, and the
-  harm grows with the attenuation gap. Differing reliability is tolerable only
-  where sources are analyzed separately and their results compared.
-- It **does** require the same **type** of error. If one study reports effects on a
-  categorized variable (Berkson-type error) while another uses the underlying continuous
-  variable (classical measurement error), they are **not** operationally equivalent.
+  pooled or compared. Unreliable measurement biases a combined estimate toward zero.
+  Differences in reliability between sources also create spurious differences between
+  their estimates (Wiernik & Dahlke 2020). This second effect grows with the
+  attenuation gap.
+- It **does** require the same **type** of error. If one study assigns each
+  participant the average exposure of a group (Berkson-type error, Armstrong 1998) while
+  another measures exposure individually (classical measurement error), they are
+  **not** operationally equivalent.
 
 **Examples:**
 - Two cohorts measuring systolic BP via automated cuff devices → operationally
@@ -53,8 +54,10 @@ on the same measurement scales and with the same measurement-error structure.
    Values near 0 indicate high alignment.
 
 2. **Measurement-error magnitude differences.**
-   Compare reliability coefficients (McDonald's omega, ICC) or known assay CVs.
-   Absolute difference in reliability provides a continuous dissimilarity function.
+   Compare standard errors of measurement (the SD of the measurement error) or known
+   assay CVs. Their absolute difference provides a continuous dissimilarity function.
+   A difference in reliability (McDonald's omega, ICC) also reflects the true-score
+   variance of each sample.
    Prefer omega to Cronbach's alpha: alpha assumes tau-equivalent items, so a
    difference in alpha confounds reliability with departure from tau-equivalence.
    Where an ICC is used, state which form.
@@ -99,7 +102,7 @@ on the same measurement scales and with the same measurement-error structure.
 ### Similarity Condition
 
 Two studies are **sampling-equivalent** if:
-1. The unit of randomization/sampling is the same (individuals vs. clusters).
+1. The unit of sampling is the same (individuals vs. clusters).
 2. Inclusion and exclusion criteria target the same population.
 
 **Key distinctions:**
@@ -109,8 +112,10 @@ Two studies are **sampling-equivalent** if:
   same target population.
 
 **Examples:**
-- A cluster-randomized trial vs. an individually randomized trial → **not**
-  sampling-equivalent (even if both target "adults with hypertension").
+- A cluster-randomized trial vs. an individually randomized trial, both targeting
+  "adults with hypertension" → can be sampling-equivalent. The unit of randomization
+  concerns allocation. Pooling them requires that the cluster-randomized estimate
+  accounts for clustering (Cochrane Handbook, chapter 23).
 - Two hospital cohorts excluding prior cardiovascular events via comparable
   ICD-code definitions → sampling-equivalent.
 - Excluding "known cancer" via self-report vs. via registry linkage → **not**
@@ -125,8 +130,8 @@ Two studies are **sampling-equivalent** if:
    d_inc = 0 if f_x(p) == f_y(p) for all p, 1 otherwise
    ```
    This binary form gives one differing criterion the same value as wholesale
-   divergence, so it cannot rank sources. Applied to one criterion at a time, it gives
-   the *per-criterion eligibility concordance* of `01-decision_catalogue.md`, the share
+   divergence, so it cannot rank sources. Applied to one criterion at a time and averaged
+   over the criteria, 1 - d_inc gives the *per-criterion eligibility concordance* of `01-decision_catalogue.md`, the share
    of eligibility criteria that agree between sources. Report the denominator used,
    since these proportions are not comparable across papers otherwise.
 
@@ -152,7 +157,9 @@ Two studies are **sampling-equivalent** if:
 - Inclusion/exclusion criteria may be the primary basis for sampling similarity
   claims, since empirical overlap diagnostics lack power.
 - PS models overfit in small samples; overlap diagnostics may be misleading.
-- SMDs have high sampling variance; bootstrap CIs are advisable.
+- With no true difference, the expected |SMD| is about 0.8 * sqrt(1/n1 + 1/n2)
+  (Hedges 1981). With equal sample sizes, it exceeds 0.1 below about 130 units per
+  sample. Compare observed SMDs with their permutation distribution.
 - With few clusters, cluster-structure assessments have very low precision.
 
 ### Cross-Subspace Proxy Warning

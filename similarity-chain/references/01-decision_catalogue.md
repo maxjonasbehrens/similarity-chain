@@ -42,7 +42,7 @@ Most conditions concern two sources at a time, so no pairwise dissimilarity func
 | **Required subspaces** | Design: operationalization → Data: evidence compatibility → Model: synthesis adequacy |
 | **Assessment order** | 1. Operationalization (gate) → 2. Evidence compatibility → 3. Synthesis adequacy |
 | **Gate logic** | If populations, interventions, comparators, outcomes or study designs are defined differently, effects are not comparable. Study attributes that explain differences in effects, or a wide distribution of true effects, limit what the pooled estimate supports. Eligibility here means the review's criteria for including trials, so it is part of this gate and not of sampling equivalence. |
-| **Dissimilarity functions** | Search strategy applied at screening; per-criterion eligibility concordance (a share per criterion, not one yes or no); scale-alignment proportion of the outcome measures; subgroup analyses, meta-regression on study attributes and funnel plot asymmetry; between-study variance τ² with its prediction interval |
+| **Dissimilarity functions** | Search strategy applied at screening; per-criterion eligibility concordance (a share over the criteria, not one yes or no); scale-alignment proportion of the outcome measures; subgroup analyses, meta-regression on study attributes and funnel plot asymmetry; between-study variance τ² with its prediction interval |
 
 ### 1.3 Compare treatments through a network of trials
 

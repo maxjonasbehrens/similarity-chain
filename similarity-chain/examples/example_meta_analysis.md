@@ -213,8 +213,9 @@ trials.
   dose, it showed no significant impact on the overall result.
 - **Subgroup analyses** and **funnel plot asymmetry** are the other two functions
   for this condition. Funnel plot asymmetry is an association between effect size
-  and precision, and it can indicate that the studies found differ from the studies
-  conducted. *Not given in the paper:* their results for this example. A researcher
+  and precision. It indicates that study size, or an attribute linked to it, explains
+  differences in effects. Publication bias (the studies found differ from the studies
+  conducted) is one possible cause. *Not given in the paper:* their results for this example. A researcher
   would report the subgroup estimates with intervals and the funnel plot or an
   asymmetry test on the 11 trials.
 
@@ -222,7 +223,8 @@ trials.
 
 The meta-regression found no association. With 11 trials it has low power, so the
 absence of an association does not establish the condition. It also covers only two
-attributes. Study characteristics outside the scope of the search strategy remain
+attributes. Both are trial-level averages, so an association across trials need not
+hold within trials (ecological bias). Study characteristics outside the scope of the search strategy remain
 unmeasured. The evidence cannot establish the condition, so it is assumed. The paper
 reports this evidence but does not state a status for the data link. The status
 here follows from the paper's status rule.

@@ -543,9 +543,9 @@ These govern your behavior throughout all steps:
    inventory often carries more of the claim's weight than the empirical evidence.
 
 6. **Separate discrimination from calibration**: For prediction transport,
-   always report these separately. Both are computed on the model, but a calibration
-   failure often has a data-subspace cause, a difference in baseline hazard or
-   prevalence.
+   always report these separately. Discrimination depends on the model and on the
+   case mix. A calibration failure often reflects a different baseline risk at the
+   same predictor values, which is a difference in P(Y|X).
 
 7. **Uncertainty is not optional**: Every dissimilarity function needs a confidence
    interval or permutation-based uncertainty estimate. In small samples, point

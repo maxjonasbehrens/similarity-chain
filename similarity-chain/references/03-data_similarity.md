@@ -87,8 +87,9 @@ repair it can remove the one-to-one correspondence entirely.
 - If categories of a coded variable changed between schemes: Carry across only the
   categories whose correspondence is verified (retention and purity both above a
   stated threshold), and report the others as discontinuous. Rescaling by a ratio of
-  totals is not a remediation, because it cannot separate records that left a
-  category from records that arrived.
+  totals is not a remediation. It cannot separate records that left a category from
+  records that arrived, and it assumes that both shares stay constant over time and
+  across subgroups.
 
 ---
 
@@ -98,10 +99,12 @@ repair it can remove the one-to-one correspondence entirely.
 
 Two datasets are **distributionally comparable** if their variables have been placed
 in correspondence (signature equivalence holds) and are measured on scales that permit
-quantitative comparison.
+quantitative comparison, and if their distributions differ by less than a task-stated
+bound on the chosen dissimilarity function. The bound is task-relative.
 
-This is a minimal condition: computing a distance between empirical distributions is
-meaningful without requiring that both come from the same parametric family.
+Signature equivalence and a common scale make a distance between empirical
+distributions meaningful without requiring that both come from the same parametric
+family.
 
 **When a parametric dissimilarity function is used** (e.g., comparing fitted Gaussian
 parameters), the additional assumption of distributional-family equivalence must be
@@ -109,8 +112,9 @@ stated explicitly.
 
 **Examples:**
 - Two cohorts with overlapping covariate ranges and comparable outcome rates →
-  comparable regardless of distribution shape.
-- Zero-inflated counts vs. Poisson counts → comparable (empirical distributions can
+  comparable if their distance stays within the bound, whatever parametric family
+  their distributions belong to.
+- Zero-inflated counts vs. Poisson counts → can be comparable (empirical distributions can
   be compared), but claiming distributional-family equivalence requires an assumption.
 
 ### Dissimilarity Functions
@@ -120,24 +124,28 @@ stated explicitly.
    No distributional-family assumption required.
    - *When to use:* Default choice. Works for any variable type.
    - *How to interpret:* Compare against permutation null distribution.
-   - *Caution:* Energy distance is MMD computed with the distance kernel. Report one
-     of them, not both as if they were independent checks.
+   - *Caution:* Energy distance is MMD computed with the distance kernel. MMD with
+     another kernel, such as the Gaussian kernel, is a different statistic. Name the
+     kernel whenever MMD is reported.
    - *Caution:* When n is small relative to the number of variables p (n = o(sqrt(p))),
      both statistics retain power only against differences in means and in the trace
-     of the covariance. Report the n-to-p ratio alongside the statistic, and read a
+     of the covariance. Until n grows faster than p^(3/2), they detect differences in
+     means and covariances but not in higher moments. Report the n-to-p ratio alongside the statistic, and read a
      small distance in a small, wide sample as uninformative rather than reassuring.
 
 2. **Standardized mean differences (SMDs).**
-   Per-covariate scale-free location summary. |SMD| < 0.1 is conventional.
+   Per-covariate scale-free location summary. |SMD| < 0.1 is conventional. With no
+   true difference and equal sample sizes, the expected |SMD| exceeds 0.1 below about
+   130 units per sample, so compare observed SMDs with their permutation distribution.
    - *When to use:* Quick balance diagnostic; widely understood.
    - *Limitation:* Only captures location shift, not shape differences.
 
 3. **Prognostic-score balance.**
    Balance on a score that predicts the outcome from covariates, fitted in one source
    and applied to both.
-   - *When to use:* When balance measures disagree. It is the only balance diagnostic
-     that targets bias in the estimand directly rather than covariate discrepancy as a
-     proxy.
+   - *When to use:* Alongside covariate balance. In simulations of propensity-score
+     methods, it tracked bias in the effect estimate more closely than covariate
+     balance did.
 
 4. **Density-ratio diagnostics.**
    c-statistic of a classifier trained to distinguish samples. Values near 0.5
@@ -196,7 +204,8 @@ conditional-independence patterns are similar across datasets.
 
 **Examples:**
 - Two datasets where age-BP association follows the same monotone pattern →
-  dependence-similar (even if one cohort is older).
+  dependence-similar (even if one cohort records BP on a log scale). If one cohort
+  covers a narrower age range, the restricted range alone can lower its correlations.
 - Linear age-BP association in one, U-shaped in another → **not** dependence-similar.
 
 ### Dissimilarity Functions
@@ -241,19 +250,22 @@ conditional-independence patterns are similar across datasets.
 ### Similarity Condition
 
 Two datasets are **missingness-comparable** if their missingness patterns can be
-described using the same observable summaries: proportion missing per variable,
-pattern frequencies, and associations between missingness indicators and covariates.
+described using the same observable summaries and these summaries differ by less than
+a task-stated bound. The summaries are the proportion missing per variable, pattern
+frequencies, and associations between missingness indicators and covariates.
 
 **Key distinctions:**
-- Claims about the underlying mechanism (MAR, MNAR, limit of detection) are
-  **untestable assumptions** and belong in the assumption inventory.
+- Claims about the underlying mechanism (MAR, MNAR) are
+  **untestable assumptions** and belong in the assumption inventory. MCAR (missingness
+  that depends on no variable) is the exception. Observed data can reject it (Little's
+  test).
 - The empirical similarity condition asserts that the *observable signatures* of
   missingness are similar, without committing to a mechanism.
 
 **Examples:**
 - Two cohorts with similar missingness rates in lab values and similar
   associations between missingness indicators and covariates → comparable.
-- 40% outcome missingness due to death vs. 5% administrative missingness →
+- 40% outcome missingness due to loss to follow-up vs. 5% administrative missingness →
   **not** comparable (observable patterns differ sharply).
 
 ### Dissimilarity Functions
@@ -266,8 +278,9 @@ pattern frequencies, and associations between missingness indicators and covaria
    least one, and report the third category separately. Multilevel and study-level
    imputation methods from individual-participant-data meta-analysis address it. A
    variable that is constant and unrecorded in one source (a treatment given to every
-   participant and therefore never coded) is systematically missing and also
-   confounded with source.
+   participant and therefore never coded) has a known value there. It lacks
+   variation within that source, so its effect cannot be separated from the effect of
+   the source.
 
 2. **Missingness-rate comparison.**
    Differences in proportion missing per variable. Directly observable.
@@ -322,11 +335,15 @@ meta-analysis (task 1.2).
 ### Dissimilarity Functions
 
 1. **Subgroup analysis and meta-regression.**
-   Relate the effect estimates to study attributes.
+   Relate the effect estimates to study attributes. For an attribute measured as a
+   study-level average, such as the percentage of men, the association with the effect
+   across studies can differ from the association within studies (ecological bias).
 
 2. **Funnel plot asymmetry.**
-   An association between effect size and precision can indicate that the studies
-   found differ from the studies conducted.
+   An association between effect size and precision indicates that study size, or an
+   attribute linked to it, explains differences in effects. Publication bias (the
+   studies found differ from the studies conducted) is one possible cause. As a rule of
+   thumb, tests for this association need at least 10 studies.
 
 ### Small-n Caveats
 
