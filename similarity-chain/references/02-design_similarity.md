@@ -8,9 +8,10 @@ studies with nearly identical data distributions may be design-dissimilar if one
 self-report while the other uses biomarkers, or if inclusion criteria define
 fundamentally different populations.
 
-Design dissimilarity was the root cause of the Epic sepsis prediction failure:
-hospitals shared the same data features but differed in outcome definitions and
-documentation protocols.
+In the coding-revision case (`05-failure_cases.md`, Case 1), design dissimilarity is
+visible before any record is read. When US mortality coding moved from the ninth to the
+tenth revision of the International Classification of Diseases (ICD) in 1999, the rules
+that assign deaths to cause categories changed, and the codebook documents the change.
 
 Design similarity is often only partially testable — much of the relevant information
 resides in protocols, not in observed data.
@@ -65,8 +66,8 @@ on the same measurement scales and with the same measurement-error structure.
 4. **Measurement-invariance tests.**
    Configural, metric, and scalar invariance in factor models. Hierarchical:
    configural (same structure) → metric (same loadings) → scalar (same intercepts).
-   These tests return a verdict, not a distance. Report a continuous effect size for
-   non-invariance alongside the test.
+   These tests return a yes-or-no result, not a distance. Report a continuous effect
+   size for non-invariance alongside the test.
 
 ### Small-n Caveats
 
@@ -117,14 +118,18 @@ Two studies are **sampling-equivalent** if:
 
 ### Dissimilarity Functions
 
-1. **Per-criterion eligibility concordance.** Compare inclusion and exclusion
-   criteria one criterion at a time and score the agreement as a graded
-   quantity, not a binary verdict: a single differing criterion should not
-   score the same as wholesale divergence. Established alternatives exist and
-   should be preferred where the target population is defined -- Tipton's
-   generalizability index (2014) and propensity-score-based standardized
-   differences (Stuart et al. 2011). Report the denominator used, since these
-   proportions are not comparable across papers otherwise.
+1. **Inclusion-function agreement.**
+   Let f_x and f_y map patient characteristics p to inclusion status (0 or 1). If both
+   functions are deterministic and known:
+   ```
+   d_inc = 0 if f_x(p) == f_y(p) for all p, 1 otherwise
+   ```
+   This binary form gives one differing criterion the same value as wholesale
+   divergence, so it cannot rank sources. Applied to one criterion at a time, it gives
+   the *per-criterion eligibility concordance* of `01-decision_catalogue.md`, the share
+   of eligibility criteria that agree between sources. Report the denominator used,
+   since these proportions are not comparable across papers otherwise.
+
 2. **Propensity-score overlap.** *(cross-subspace proxy)*
    When both samples are drawn from a common super-population, overlap in PS
    distributions quantifies sampling similarity. Metrics: c-statistic of a classifier
@@ -132,7 +137,10 @@ Two studies are **sampling-equivalent** if:
 
 3. **Covariate balance summaries.** *(cross-subspace proxy)*
    SMDs on key covariates. |SMD| < 0.1 is conventional but context-dependent.
-   Can aggregate as maximum SMD or average SMD.
+   Can aggregate as maximum SMD or average SMD. Indices designed for exactly this
+   comparison exist and should be preferred to ad hoc summaries where the target
+   population is defined: Tipton's generalizability index (2014) and
+   propensity-score-based standardized differences (Stuart et al. 2011).
 
 4. **Cluster-structure comparison.**
    For clustered designs: compare number of clusters, cluster sizes, and ICCs.

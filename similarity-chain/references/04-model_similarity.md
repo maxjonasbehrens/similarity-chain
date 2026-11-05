@@ -5,7 +5,8 @@ effects, causal mechanisms — transfer across contexts. The integration decisio
 determines which aspect of model behavior matters:
 
 - Transporting a prediction rule → P(Y|X) must be approximately invariant.
-- Generalizing a treatment effect → causal structure and effect magnitudes must transfer.
+- Generalizing a treatment effect → the causal structure must transfer. Whether effect
+  magnitudes must also match depends on the task (Subcategory 2).
 
 Any model can be projected onto the decision-relevant aspect: a projection P_a(M)
 extracts the relevant representation, and a dissimilarity function d_a(M1, M2)
@@ -25,17 +26,18 @@ decision.
 **Key distinctions:**
 - Predictive exchangeability does **not** require that marginal distributions P(X)
   match. Covariate shift is compatible with predictive exchangeability as long as
-  the conditional relationship is preserved.
-- **Discrimination and calibration must be reported separately.** Discrimination
-  (ranking ability) is a model-subspace property. Calibration (absolute prediction
-  accuracy) depends on baseline hazard or prevalence — a data-subspace property.
+  the conditional relationship is preserved, but it can change measures that depend
+  on the case mix, such as discrimination.
+- **Discrimination and calibration must be reported separately.** Both are computed
+  on the model. A calibration failure often has a data-subspace cause, a difference in
+  baseline hazard or prevalence.
 
-**The Framingham lesson:**
-The Framingham risk score in non-Western populations preserved discrimination
-(c-statistic) while calibration failed catastrophically. D'Agostino's recalibration
-adjusts S_0(t) (baseline hazard — data subspace) while holding beta fixed (model
-subspace). This shows the subspaces are independent: model similarity can coexist
-with data dissimilarity.
+**Discrimination can transfer while calibration fails:**
+A model can keep its discrimination (c-statistic) in a new context while its
+calibration fails, because the baseline risk differs between the contexts. The
+baseline risk is a data-subspace quantity. Recalibration re-estimates the baseline
+hazard S_0(t) while holding the coefficients beta fixed (model subspace). Model
+similarity can therefore coexist with data dissimilarity.
 
 ### Dissimilarity Functions
 
@@ -53,9 +55,10 @@ with data dissimilarity.
 3. **Calibration differences.**
    Compare calibration slope, calibration-in-the-large, or calibration curves.
    - Slope = 1, intercept = 0 indicates perfect calibration.
-   - Calibration depends on baseline hazard/prevalence → data-subspace property.
-   - **Always report alongside discrimination** — good discrimination + poor
-     calibration is the canonical Framingham pattern.
+   - Computed on the model, but a calibration failure often has a data-subspace
+     cause, a difference in baseline hazard or prevalence.
+   - **Always report alongside discrimination.** Good discrimination with poor
+     calibration is the typical pattern when the baseline risk differs.
 
 4. **Coefficient-swap prediction error.**
    Swap estimated coefficients between contexts and measure prediction degradation.
@@ -99,8 +102,8 @@ with data dissimilarity.
 
 Following Pearl, causal comparability decomposes into two **independent** conditions:
 
-1. **Structural similarity.** Two models are structurally similar if the same
-   variables are causally connected (same DAG), regardless of effect sizes,
+1. **Structural causal similarity.** Two models are structurally causally similar if
+   the same variables are causally connected (same DAG), regardless of effect sizes,
    functional forms, or parameter values.
 
 2. **Probabilistic similarity.** Two models are probabilistically similar if the
@@ -110,16 +113,17 @@ These conditions are independent:
 - Models may share causal structure but differ in exogenous distributions.
 - Models may be probabilistically similar yet structurally dissimilar.
 
-**Full causal similarity** = structural + probabilistic similarity. Even under full
-similarity, models may differ in effect magnitudes or functional forms.
+**Full causal similarity** = structural causal similarity + probabilistic similarity.
+Even under full causal similarity, models may differ in effect magnitudes or functional
+forms.
 
 ### Which Form Does the Decision Require?
 
 | Decision | Required form |
 |----------|---------------|
 | Strict replication | Full causal similarity (structure + probabilistic) |
-| Validate a specific causal claim (X→Y) | Structural similarity may suffice |
-| Transport treatment effect | Structural similarity + identifiable selection mechanism |
+| Validate a specific causal claim (X→Y) | Structural causal similarity may suffice |
+| Transport treatment effect | Structural causal similarity + identifiable selection mechanism |
 | Compare effect magnitudes | Full causal similarity or explicit transport formula |
 
 Articulating which form the decision requires makes replication claims more precise
@@ -147,7 +151,7 @@ and highlights what would constitute a failure to replicate.
 ### Small-n Caveats
 
 - Causal structure **cannot generally be identified** from small observational samples.
-  Structural similarity claims typically rest on **domain knowledge**, not data-driven
+  Structural causal similarity claims typically rest on **domain knowledge**, not data-driven
   discovery.
 - Effect estimates have **wide CIs** in small n. Difficult to distinguish genuine
   effect heterogeneity from sampling variability.
@@ -163,12 +167,38 @@ and highlights what would constitute a failure to replicate.
 - What confounders are measured? What might be unmeasured?
 - Is structural knowledge from domain expertise or data-driven?
 
-**If causal similarity condition fails:**
+**If causal similarity condition fails** (causal similarity gates only in task 4.3,
+Transport causal effect, and is a graded check in tasks 4.1 and 4.2):
 - **Structure differs:** The causal claim does not transfer. Different mechanisms
-  are at work.
+  are at work. Where causal similarity gates (task 4.3), integration is not
+  recommended.
 - **Structure similar, effects differ:** Effect modification by context-specific
-  factors. Can the modifier be identified and adjusted for?
+  factors. Can the modifier be identified and adjusted for? This is a modification.
 - **Exogenous distributions differ:** Transport formulas may accommodate if the
-  selection mechanism is identifiable.
+  selection mechanism is identifiable. This is a modification.
 - **Cannot assess:** State as assumption. Sensitivity analysis for structural
   violations.
+
+---
+
+## Subcategory 3: Synthesis Adequacy
+
+### Similarity Condition
+
+A set of studies is **synthesis-adequate** if the distribution of true effects is narrow
+enough for the pooled summary to support the stated recommendation.
+
+**When it applies:** A pooled summary of effects is used to support a recommendation,
+as in meta-analysis (task 1.2).
+
+### Dissimilarity Functions
+
+1. **Between-study variance and prediction interval.**
+   The between-study variance tau^2 and the prediction interval for the effect in a
+   new study. I^2 expresses the share of observed variation in excess of chance and
+   does not measure the spread of true effects.
+
+### Small-n Caveats
+
+- With few studies, tau^2 is estimated imprecisely. Report its interval and the
+  prediction interval rather than tau^2 alone.

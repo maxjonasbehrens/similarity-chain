@@ -14,9 +14,9 @@ This repository holds the resource described in the preprint:
 | `similarity-chain/references/02-design_similarity.md` | Conditions and dissimilarity functions for the design subspace |
 | `similarity-chain/references/03-data_similarity.md` | Conditions and dissimilarity functions for the data subspace |
 | `similarity-chain/references/04-model_similarity.md` | Conditions and dissimilarity functions for the model subspace |
-| `similarity-chain/references/05-failure_cases.md` | Three published failures where the similarity checked was not the one the task required |
+| `similarity-chain/references/05-failure_cases.md` | Three failure cases where the similarity checked was not the one the task required |
 | `similarity-chain/references/06-report_template.md` | Template for the similarity specification report |
-| `similarity-chain/examples/` | Worked example: transport of the Framingham risk score (an extension task outside the combined-data scope of the preprint) |
+| `similarity-chain/examples/` | Worked example: meta-analysis of clozapine trials, the running example of the preprint |
 | `similarity-chain/SKILL.md` | Agent skill that guides an analyst through the chain in conversation |
 | `similarity-chain.zip` | The skill folder, packed for upload |
 

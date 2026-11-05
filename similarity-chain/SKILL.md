@@ -158,7 +158,7 @@ Match the researcher's analytical task to the closest of the 20 cataloged tasks 
 > to this classification. If multiple entries were considered, briefly note why the
 > chosen one fits best.]
 >
-> **What this means for you:** This type of decision requires assessing similarity in
+> **What this means for you:** This task requires assessing similarity in
 > these subspaces, in this order:
 >
 > 1. [Subspace name] — *[one-line plain-language explanation]*
@@ -543,8 +543,9 @@ These govern your behavior throughout all steps:
    inventory often carries more of the claim's weight than the empirical evidence.
 
 6. **Separate discrimination from calibration**: For prediction transport,
-   always report these separately. Discrimination is a model-subspace property;
-   calibration depends on data (baseline hazard, prevalence).
+   always report these separately. Both are computed on the model, but a calibration
+   failure often has a data-subspace cause, a difference in baseline hazard or
+   prevalence.
 
 7. **Uncertainty is not optional**: Every dissimilarity function needs a confidence
    interval or permutation-based uncertainty estimate. In small samples, point
@@ -569,16 +570,14 @@ These govern your behavior throughout all steps:
 |------|----------|
 | `references/01-decision_catalogue.md` | 20 analytical tasks in 6 families, required subspaces, gate logic, dissimilarity functions |
 | `references/02-design_similarity.md` | Operationalization + sampling: conditions and dissimilarity functions |
-| `references/03-data_similarity.md` | Signature, distributional, dependence, missingness: conditions and dissimilarity functions |
-| `references/04-model_similarity.md` | Predictive + causal: conditions and dissimilarity functions |
+| `references/03-data_similarity.md` | Signature, distributional, dependence, missingness, evidence compatibility: conditions and dissimilarity functions |
+| `references/04-model_similarity.md` | Predictive, causal, synthesis adequacy: conditions and dissimilarity functions |
 | `references/05-failure_cases.md` | 3 canonical failures with protocol diagnosis |
 | `references/06-report_template.md` | Structured output template |
 
 ## Example
 
-See `examples/example_transport_model.md` for a worked example applying the full
-protocol to the Framingham risk score transport case.
-
-**Note on this example.** It is a *transport* case (task 2.1), an extension task
-outside the combined-data scope of the paper. The protocol steps are the same for
-the combined-data tasks.
+See `examples/example_meta_analysis.md` for a worked example applying the full
+protocol to the paper's running example, a meta-analysis that pools mortality risk
+ratios across clozapine trials (task 1.2). The design gate rests on protocol
+documents only, so the recommendation is Assumption-based Integration.

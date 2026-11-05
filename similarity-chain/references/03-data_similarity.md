@@ -19,7 +19,7 @@ samples due to finite-sample variation.
 **Guiding principle (empirical/assumption boundary):** Dissimilarity functions should
 quantify properties directly observable in the data. When a dissimilarity function requires
 a modeling assumption (e.g., same distributional family, MAR missingness), that
-assumption belongs in the assumption field, not buried in the choice of function.
+assumption belongs in the assumption inventory, not buried in the choice of function.
 
 ---
 
@@ -49,6 +49,25 @@ and time aggregation.
    If harmonization is required, the number of transformations (recoding, rescaling,
    aggregation) needed to align schemas.
 
+**Retention and purity, where a correspondence can be observed directly.**
+Where a provider has coded the same records under both schemes (a dual-coded file, a
+bridge-coding study, a period of parallel running), the correspondence is observable
+rather than assumed. Report two quantities per category instead of one. *Retention* is
+the share of a category's records under the old scheme that remain in it under the new
+one. *Purity* is the share of its records under the new scheme that were in it under
+the old one. A single ratio of totals cannot separate the two mechanisms: a category
+can shrink because its own records leave, or grow because records arrive from
+elsewhere. A category in which both exceed a stated threshold may be carried across the
+break. A category failing either should be reported as discontinuous rather than
+corrected (`05-failure_cases.md`, Case 1).
+
+**Strict bijection is a poor guide to remediation.** Signature equivalence asks for a
+one-to-one correspondence between variables. Within a coded variable, strict bijection
+between categories (each category maps to exactly one category and is reached from
+exactly one) is a poorer guide than it appears. A single misassigned record
+disqualifies a category that is otherwise sound, and coarsening the classification to
+repair it can remove the one-to-one correspondence entirely.
+
 ### Small-n Caveats
 
 - Signature assessments are metadata-based and **do not depend on sample size**.
@@ -61,6 +80,15 @@ and time aggregation.
 - Are variable names standardized (e.g., CDISC, OMOP)?
 - Same unit of observation? Same time point definitions?
 - Any variables requiring transformation to align?
+
+**Gate failure remediation:**
+- If some variables cannot be placed in correspondence: Can the variables that can
+  support the task?
+- If categories of a coded variable changed between schemes: Carry across only the
+  categories whose correspondence is verified (retention and purity both above a
+  stated threshold), and report the others as discontinuous. Rescaling by a ratio of
+  totals is not a remediation, because it cannot separate records that left a
+  category from records that arrived.
 
 ---
 
@@ -130,8 +158,6 @@ stated explicitly.
 - Classifier-based measures overfit; **permutation-based null distributions** advisable.
 - Model-selection tests for distributional form have low power: failure to reject
   does not confirm the assumed family.
-- In the Framingham example, divergent baseline hazard rates represent a distributional
-  failure that invalidated calibration even when model discrimination was preserved.
 
 ### Assessment Guidance
 
@@ -220,7 +246,7 @@ pattern frequencies, and associations between missingness indicators and covaria
 
 **Key distinctions:**
 - Claims about the underlying mechanism (MAR, MNAR, limit of detection) are
-  **untestable assumptions** and belong in the assumption field.
+  **untestable assumptions** and belong in the assumption inventory.
 - The empirical similarity condition asserts that the *observable signatures* of
   missingness are similar, without committing to a mechanism.
 
@@ -279,3 +305,30 @@ pattern frequencies, and associations between missingness indicators and covaria
 - If mechanisms likely differ: Sensitivity analyses under different assumptions.
 - If rates differ dramatically: May indicate fundamentally different populations
   or data collection processes — reassess design similarity.
+
+---
+
+## Subcategory 5: Evidence Compatibility
+
+### Similarity Condition
+
+A set of studies is **evidence-compatible** if study and population attributes that the
+search strategy does not fix do not systematically explain differences in observed
+effects.
+
+**When it applies:** The sources are studies whose effect estimates are combined, as in
+meta-analysis (task 1.2).
+
+### Dissimilarity Functions
+
+1. **Subgroup analysis and meta-regression.**
+   Relate the effect estimates to study attributes.
+
+2. **Funnel plot asymmetry.**
+   An association between effect size and precision can indicate that the studies
+   found differ from the studies conducted.
+
+### Small-n Caveats
+
+- With few studies, subgroup analyses and meta-regression have low power. The absence
+  of an association does not establish the condition.

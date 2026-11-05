@@ -1,6 +1,6 @@
 # Task Catalog
 
-20 analytical tasks organized in 6 families. Numbering follows the task catalog in the supplement of the preprint. The four links of the chain are **analytical task → subspace → condition → dissimilarity function**.
+20 analytical tasks organized in 6 families. Families and tasks follow the order of the task catalog in the supplement of the preprint. The task numbers (1.1, 1.2, …) are this skill's own. The four links of the chain are **analytical task → subspace → condition → dissimilarity function**.
 
 ## How to use this catalog
 
@@ -19,7 +19,7 @@ Four dissimilarity functions below carry this framework's own names. The *scale-
 
 Distributional similarity is a graded check in every task below that includes it, with one exception. Missingness and predictive similarity are never gates. A distributional difference moves an estimate, and weighting or adjustment can often address it. But weighting needs information to weight with. In *Compare treatments through a network of trials*, aggregate data do not provide it, so distributional similarity gates there. Dependence gates only in *Fuse non-overlapping sources*, where the estimate rests on an untestable conditional independence. Both exceptions follow the rule of the paper's gate logic: a subspace is a gate when its condition fixes what the downstream quantities refer to. The gate assignments therefore describe these twenty tasks, not the subspaces. In small area estimation (model-based estimates for domains with almost no direct observations), for example, the estimates for those domains extrapolate a model beyond the data it was fitted on, so a predictive condition gates.
 
-The subspaces compare two sources at a time, so no pairwise dissimilarity function can detect a condition that holds only for a whole set of sources. The network task is such a case. Family 6 names a task that the subspaces do not describe at all.
+Most conditions concern two sources at a time, so no pairwise dissimilarity function can detect a condition that holds only for a whole set of sources. The network task is such a case. In *Meta-analyze*, evidence compatibility and synthesis adequacy are set-level conditions, and their dissimilarity functions take all studies at once. Family 6 names a task that the subspaces do not describe at all.
 
 
 ## Family 1: Combine data
@@ -39,10 +39,10 @@ The subspaces compare two sources at a time, so no pairwise dissimilarity functi
 | Field | Value |
 |-------|-------|
 | **Analytical task** | Combine effect estimates across studies (aggregate-level) |
-| **Required subspaces** | Design: operationalization → Design: sampling → Data: distributional |
-| **Assessment order** | 1. Operationalization (gate) → 2. Sampling → 3. Distributional |
-| **Gate logic** | If outcome definitions differ, effects are not comparable. Sampling differences drive heterogeneity. |
-| **Dissimilarity functions** | Scale-alignment proportion; per-criterion eligibility concordance (a share per criterion, not one yes or no); covariate SMDs |
+| **Required subspaces** | Design: operationalization → Data: evidence compatibility → Model: synthesis adequacy |
+| **Assessment order** | 1. Operationalization (gate) → 2. Evidence compatibility → 3. Synthesis adequacy |
+| **Gate logic** | If populations, interventions, comparators, outcomes or study designs are defined differently, effects are not comparable. Study attributes that explain differences in effects, or a wide distribution of true effects, limit what the pooled estimate supports. Eligibility here means the review's criteria for including trials, so it is part of this gate and not of sampling equivalence. |
+| **Dissimilarity functions** | Search strategy applied at screening; per-criterion eligibility concordance (a share per criterion, not one yes or no); scale-alignment proportion of the outcome measures; subgroup analyses, meta-regression on study attributes and funnel plot asymmetry; between-study variance τ² with its prediction interval |
 
 ### 1.3 Compare treatments through a network of trials
 
@@ -267,7 +267,7 @@ The name *multi-omics integration* covers two operations, and the chain covers o
 | Task | Assessment order |
 |---|---|
 | 1.1 Pool cohorts | 1. Operationalization (gate) → 2. Signature (gate) → 3. Distributional → 4. Predictive |
-| 1.2 Meta-analyze | 1. Operationalization (gate) → 2. Sampling → 3. Distributional |
+| 1.2 Meta-analyze | 1. Operationalization (gate) → 2. Evidence compatibility → 3. Synthesis adequacy |
 | 1.3 Compare treatments through a network of trials | 1. Operationalization (gate) → 2. Sampling (gate) → 3. Distributional (gate) |
 | 1.4 Federated analysis | 1. Operationalization (gate) → 2. Signature (gate) → 3. Distributional → 4. Missingness → 5. Predictive |
 | 1.5 Splice a series across a regime change | 1. Operationalization (gate) → 2. Signature (gate) → 3. Distributional |

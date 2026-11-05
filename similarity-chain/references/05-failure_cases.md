@@ -1,59 +1,113 @@
 # Canonical Failure Cases
 
-Three real-world failures where similarity misalignment caused harm. Each illustrates
-the same structural pattern: similarity was verified in one subspace and assumed
-sufficient for a decision that depended on another.
+Three real-world failures where similarity misalignment led to a wrong integration
+decision. Each illustrates the same structural pattern: similarity was verified in one
+subspace and assumed sufficient for a decision that depended on another.
 
 Use these cases to calibrate your assessments. If the researcher's situation resembles
 any of these patterns, flag it explicitly.
 
 ---
 
-## Case 1: Epic Sepsis Prediction Model
+## Case 1: Coding Revision in US Mortality Data
 
-**Source:** Wong et al. (2021), Lyons et al. (2023)
+**Source:** Anderson et al. (2001), the comparability study of the National Center for
+Health Statistics (NCHS). The paper's supplement works this case through the chain
+("Coding revisions in mortality data").
 
 ### What Happened
 
-A proprietary sepsis prediction model was deployed across hundreds of US hospitals.
-The justification: all sites used the same EHR system, the same input features, and
-served patient populations with comparable demographics.
+In 1999 the United States moved from the ninth to the tenth revision of the
+International Classification of Diseases (ICD). An analyst who trends cause-specific
+mortality across that year splices a series across a definitional change. NCHS
+publishes a comparability ratio for each cause: the count under ICD-10 divided by the
+count under ICD-9, on the same deaths. The field's remedy rescales each cause by its
+ratio and trends on.
 
-External validation revealed poor performance at multiple sites.
+NCHS coded 2,296,922 deaths from 1996 under both revisions and released the result.
+For every death, the file shows what it was called under the old rules and what it is
+called under the new ones. Of those deaths, 171,872 (7.48%) change category on the
+standard NCHS list of 113 causes.
 
 ### What Was Assessed
 
-- **Data: signature** — Same EHR system, same input features. ✓
-- **Data: distributional** — Comparable demographics across sites. ✓
+- **Comparability ratio, per cause.** The ratio reports how each category's total
+  changed. Computed on the dual-coded file, it reproduces the published values, for
+  example 0.695 for pneumonia and 1.581 for Alzheimer's disease. ✓
 
 ### What Was Needed
 
-- **Design: operationalization** — Outcome definitions, documentation practices,
-  alert thresholds, and coding conventions varied between sites. The "same features"
-  represented semantically different things.
+- **Design: operationalization (gate).** Cause categories must be assigned under the
+  same coding rules on both sides of the break. The classification system changed,
+  and the codebook shows this before any record is read. The gate is not met, and the
+  remediation it calls for is a verified correspondence between categories.
+- **Data: signature (gate).** Each cause must map onto one category in both
+  directions. Two quantities assess this per cause, from the same published file as
+  the ratio. *Retention* is the share of a category's ICD-9 deaths that remain in it
+  under ICD-10. *Purity* is the share of its ICD-10 deaths that were in it under ICD-9.
 
 ### Protocol Diagnosis
 
-The integration decision was **transport prediction model** (catalog entry 2.1).
-The protocol requires: **operationalization (gate) → distributional → predictive**.
+The analytical task was **splice a series across a regime change** (catalog entry
+1.5). The protocol requires: **operationalization (gate) → signature (gate) →
+distributional**.
 
-The gate (operationalization) was skipped. Data similarity was verified, but
-the features overlapped syntactically, not semantically. Because the gate's
-similarity condition was not met, all downstream assessments (distributional
-overlap, predictive performance) were built on an invalid foundation.
+The field assessed a ratio of totals where the task needs the signature gate. A ratio does not report *why* a
+total changed, and two opposite mechanisms produce a comparable departure from unity:
+
+| Cause | Retention | Purity | Ratio | Mechanism |
+|---|---|---|---|---|
+| Pneumonia | 67.7% | 97.4% | 0.695 | deaths leave the category |
+| Alzheimer's disease | 96.7% | 61.2% | 1.581 | deaths arrive from elsewhere |
+
+Alzheimer's disease keeps almost all of its own deaths, yet 38.8% of its ICD-10 deaths
+come from outside, largely from the residual "all other diseases" category. Rescaling
+its ICD-9 series by 1.581 assumes that the imported deaths move in step with the
+category's own deaths in every year. A single dual-coded year cannot show that. A
+ratio near unity does not show an intact correspondence either. Alcoholic liver
+disease has a ratio of 1.001, yet its retention and purity are both about 87%.
+
+The dual coding supplies the known answer. The departure of the ratio from unity is
+strongly rank-correlated with the failure of correspondence (Spearman ρ = -0.908
+against the smaller of retention and purity). The usual check rescales and trends
+exactly the causes that should be reported as discontinuous. A distributional check
+would not have helped. Comparing the two eras on age, sex, race, state and education
+returns a standardized difference of exactly zero on every variable, because the two
+codings describe the same people.
 
 ### What the Protocol Would Have Flagged
 
-Step 3 (ROADMAP) would present operationalization as the first gate:
+Step 3 (ROADMAP) would present two gates before any distributional comparison:
 
-> "Before assessing distributional overlap or predictive performance, we need to
-> verify that outcome definitions and feature meanings are the same across sites.
-> This is a gate — if the similarity condition fails, distributional and predictive
-> assessments are not meaningful."
+> "1. Operationalization: Were cause categories assigned under the same coding rules
+>    on both sides of the 1999 break? (GATE)
+>  2. Signature: Does each cause map onto one category in both directions? (GATE)
+>  3. Distributional: Are age, sex, race, state and education distributed comparably
+>     across the eras?"
 
-The researcher would be asked: "Are sepsis outcomes defined identically across sites?
-Are documentation practices standardized?" The answer would reveal the dissimilarity
-before any model was deployed.
+The operationalization gate fails on the codebook alone. The signature gate then turns
+the blanket rescaling into a recommendation per cause. Of the 59 causes with at least
+5,000 ICD-9 deaths:
+
+- 21 have retention and purity both at or above 95%. They cover 46.0% of the ICD-9
+  deaths in the 59 causes, and their ratios lie between 0.979 and 1.036. The
+  recommendation is Integration with Remediation, the remediation being the verified
+  correspondence.
+- 24 have either measure below 90%. Their ratios lie between 0.695 and 1.632. The
+  recommendation is Integration not recommended, and the series is reported as
+  discontinuous.
+- 14 lie between the thresholds. The recommendation is also Integration with
+  Remediation, because the design gate fails. Their correspondence is assumed rather
+  than verified. The series may be trended, with the correspondence stated as an
+  assumption and both measures reported beside it.
+
+The classification is available before any trend is estimated. Two limits apply. The
+catalog entry for this task was written while the case was under study, so the case
+shows that the conventional remedy is insufficient. It does not show that the protocol
+would have identified the task unprompted. The obvious remediation, a coarser
+classification, also fails here. Collapsing the 113 causes into 16 groups by ICD
+chapter raises the share of all deaths that keep their category only from 92.5% to 95.2%,
+and it removes one-to-one correspondence entirely.
 
 ---
 
@@ -80,8 +134,8 @@ evidence that findings would translate.
   disease induction methods in mice bear no resemblance to human disease onset.
   The "same construct" (inflammation/sepsis) was operationalized entirely differently.
 - **Model: causal** — The causal mechanisms driving inflammation differ between
-  controlled mouse injury and spontaneous human sepsis. Structural similarity of
-  the causal model was assumed but not supported.
+  controlled mouse injury and spontaneous human sepsis. Structural causal similarity
+  was assumed but not supported.
 
 ### Protocol Diagnosis
 
@@ -167,10 +221,10 @@ assessment would require cross-application evaluation, not within-site testing.
 
 All three failures share the same structure:
 
-1. **The similarity that was easy to assess was assessed** (data overlap, within-site
-   performance, molecular homology).
-2. **The similarity that the decision required was not assessed** (operationalization,
-   causal mechanism, cross-site performance).
+1. **The similarity that was easy to assess was assessed** (a ratio of category totals,
+   within-site performance, molecular homology).
+2. **The similarity that the decision required was not assessed** (category
+   correspondence, causal mechanism, cross-site performance).
 3. **Data availability dictated the comparison** rather than the decision dictating it.
 
 The protocol prevents this by starting from the decision (Step 2: CLASSIFY) and
@@ -193,3 +247,6 @@ When assessing a researcher's case, flag these patterns:
 - **"We checked covariate balance"** — Balance is a data-subspace similarity
   measure used as a proxy for a design-subspace similarity condition. State the
   cross-subspace reasoning explicitly.
+- **"The provider publishes a correction factor"**: A ratio of totals does not show
+  that categories correspond. Where records are coded under both schemes, report
+  retention and purity per category.
